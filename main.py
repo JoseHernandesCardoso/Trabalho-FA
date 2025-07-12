@@ -41,13 +41,8 @@
 # 
 # TIPOS DE DADOS:
 # Os dados do arquivo resultados.txt serão armazenados em uma lista
-# onde cada linha do arquivo é o elemento de uma lista de str. Cada
-# string será convertida em um tipo composto Jogo() que contém:
-#   - Anfitrião (str)
-#   - Gols do anfitrião (int >= 0)
-#   - Visitante (str)
-#   - Gols do visitante (int >= 0) 
-#  
+# onde cada linha do arquivo é um elemento de uma lista de str. 
+#
 # Cada time será representado por um tipo composto Time() que contem:
 #   - Nome (str)
 #   - Vitorias (int >= 0)

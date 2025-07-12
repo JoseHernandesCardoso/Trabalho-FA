@@ -22,6 +22,7 @@
 # A exibição da classificação deve ser em formato de tabela (do primeiro ao último
 # colocado) com colunas contendo, respectivamente:
 #   - Nome do time
+#   - Pontos
 #   - Vitórias
 #   - Saldo de gols 
 # A formatação de cada coluna da tabela deve se adaptar ao tamanho do maior elemento dela
@@ -81,7 +82,7 @@ def main():
         sys.exit(1)
     jogos = le_arquivo(sys.argv[1])
     times = define_times(jogos)
-    # TODO: solução da pergunta 1
+    exibe_tabela(times)
     # TODO: solução da pergunta 2
     # TODO: solução da pergunta 3
 
@@ -216,6 +217,85 @@ def procura_indice_time(nome: str, times: list[Time]) -> int:
         i = i + 1
     return indice_time
 
+def exibe_tabela(times: list[Time]):
+    '''
+    Exibe uma tabela com cada time dentro de *times*. A tabela exibe nome,
+    pontuação, vitórias e saldo de gols de cada time, nesta ordem. As colunas
+    adaptam sua largura de acordo com o tamanho do maior elemento contido nela.
+    A tabela já ordena os times de acordo com sua classificação.
+
+    Exemplo:
+    >>> times = [
+    ... Time(nome='Palmeiras', vitorias=3, pontuacao=6, saldo_gols=4, gols_sofridos=1,
+    ... jogos_anfitriao=1, pontos_anfitriao=3),
+    ... Time(nome='Bota-Fogo', vitorias=0, pontuacao=1, saldo_gols=-1, gols_sofridos=2,
+    ... jogos_anfitriao=1, pontos_anfitriao=1),
+    ... Time(nome='Santos', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=3,
+    ... jogos_anfitriao=1, pontos_anfitriao=0),
+    ... Time(nome='Vasco', vitorias=1, pontuacao=4, saldo_gols=1, gols_sofridos=2,
+    ... jogos_anfitriao=2, pontos_anfitriao=3),
+    ... Time(nome='Flamengo', vitorias=2, pontuacao=4, saldo_gols=0, gols_sofridos=3,
+    ... jogos_anfitriao=1, pontos_anfitriao=3),
+    ... Time(nome='Atletico-Madrid', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=4,
+    ... jogos_anfitriao=0, pontos_anfitriao=0)]
+    >>> exibe_tabela(times)
+    Palmeiras       6 3  4
+    Flamengo        4 2  0
+    Vasco           4 1  1
+    Bota-Fogo       1 0 -1
+    Atletico-Madrid 1 0 -3
+    Santos          1 0 -3
+    '''
+    ordem_classificacao(times)
+    # encontra o tamanho ideal para cada coluna
+    maior_nome = maior_ponto = maior_vitoria = maior_saldo = 0
+    for time in times:
+        if maior_nome < len(time.nome):
+            maior_nome = len(time.nome)
+
+        if maior_ponto < len(str(time.pontuacao)):
+            maior_ponto = len(str(time.pontuacao))
+
+        if maior_vitoria < len(str(time.vitorias)):
+            maior_vitoria = len(str(time.vitorias))
+
+        if maior_saldo < len(str(time.saldo_gols)):
+            maior_saldo = len(str(time.saldo_gols))
+    # exibe tabela
+    for time in times:
+        tam_nome = maior_nome - len(time.nome)
+        tam_ponto = maior_ponto - len(str(time.pontuacao))
+        tam_vitoria = maior_vitoria - len(str(time.vitorias))
+        tam_saldo = maior_saldo - len(str(time.saldo_gols))
+        print(time.nome + ' '*tam_nome,
+              ' '*tam_ponto + str(time.pontuacao),
+              ' '*tam_vitoria + str(time.vitorias),
+              ' '*tam_saldo + str(time.saldo_gols))
+
+def ordem_classificacao(times: list[Time]):
+    '''
+    Modifica *times* ordenando eles de acordo com suas classificações.
+    A ordem de classificação é feita de acordo com a pontuação de cada time.
+    Em caso de empate, ganha o time com mais vitórias. Em caso de outro empate,
+    ganha o time com melhor saldo de gols. Em caso de mais um empate, o critério
+    final é a ordem alfabética do nome dos times.
+    '''
+    for i in range(len(times)):
+        for j in range(i+1, len(times)):
+            j_mais_pontos = times[j].pontuacao > times[i].pontuacao
+            desempate1 = (times[j].pontuacao == times[i].pontuacao
+                          and times[j].vitorias > times[i].vitorias)
+            desempate2 = (times[j].pontuacao == times[i].pontuacao
+                          and times[j].vitorias == times[i].vitorias
+                          and times[j].saldo_gols > times[i].saldo_gols)
+            desempate3 = (times[j].pontuacao == times[i].pontuacao
+                          and times[j].vitorias == times[i].vitorias
+                          and times[j].saldo_gols == times[i].saldo_gols
+                          and times[j].nome < times[i].nome)
+            if j_mais_pontos or desempate1 or desempate2 or desempate3:
+                aux = times[i]
+                times[i] = times[j]
+                times[j] = aux
 
 if __name__ == '__main__':
-    print(main())
+    main()

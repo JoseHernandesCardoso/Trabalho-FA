@@ -85,7 +85,7 @@ def main():
     exibe_tabela(times)
 
     melhores_aprv = melhor_aproveitamento(times)
-    aprv = melhores_aprv[0].pontos_anfitriao/(melhores_aprv[0].jogos_anfitriao*3)
+    aprv = calc_aproveitamento(melhores_aprv[0])
     aprv = round(aprv*100, 2)
     print('O(s) time(s) com o melhor aproveitamento jogando como anfitrião foi(ram):')
     for time in melhores_aprv:
@@ -333,15 +333,9 @@ def melhor_aproveitamento(times: list[Time]) -> list[Time]:
     if len(times) == 0 or len(times) == 1:
         melhores = times
     elif len(times) == 2:
-        desempenho0 = desempenho1 = 0
-        if times[0].jogos_anfitriao != 0:
-            desempenho0 = times[0].pontos_anfitriao/(times[0].jogos_anfitriao*3)
-        if times[1].jogos_anfitriao != 0:
-            desempenho1 = times[1].pontos_anfitriao/(times[1].jogos_anfitriao*3)
-
-        if desempenho0 > desempenho1:
+        if calc_aproveitamento(times[0]) > calc_aproveitamento(times[1]):
             melhores = [times[0]]
-        elif desempenho1 > desempenho0:
+        elif calc_aproveitamento(times[0]) < calc_aproveitamento(times[1]):
             melhores = [times[1]]
         else:
             melhores = times
@@ -351,9 +345,16 @@ def melhor_aproveitamento(times: list[Time]) -> list[Time]:
         melhores = melhor_aproveitamento(
             melhor_aproveitamento(times[:i_metade]) + \
             melhor_aproveitamento(times[i_metade:]))
-        
     return melhores
 
+def calc_aproveitamento(time: Time) -> float:
+    '''
+    Calcula o aproveitamento do *time* nos jogos em que ele jogou como anfitrião
+    '''
+    aproveitamento = 0
+    if time.jogos_anfitriao != 0:
+        aproveitamento = time.pontos_anfitriao/(time.jogos_anfitriao*3)
+    return aproveitamento
 
 if __name__ == '__main__':
     main()

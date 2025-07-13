@@ -83,7 +83,14 @@ def main():
     jogos = le_arquivo(sys.argv[1])
     times = define_times(jogos)
     exibe_tabela(times)
-    # TODO: solução da pergunta 2
+
+    melhores_aprv = melhor_aproveitamento(times)
+    aprv = melhores_aprv[0].pontos_anfitriao/(melhores_aprv[0].jogos_anfitriao*3)
+    aprv = round(aprv*100, 2)
+    print('O(s) time(s) com o melhor aproveitamento jogando como anfitrião foi(ram):')
+    for time in melhores_aprv:
+        print('   - ' + time.nome)
+    print('Com ' + str(aprv) + '% de aproveitamento.')
     # TODO: solução da pergunta 3
 
 
@@ -296,6 +303,57 @@ def ordem_classificacao(times: list[Time]):
                 aux = times[i]
                 times[i] = times[j]
                 times[j] = aux
+
+def melhor_aproveitamento(times: list[Time]) -> list[Time]:
+    '''
+    Retorna o(s) time(s) com melhor aproveitamento jogando como 
+    anfitrião dentro de *times*. O aproveitamento é a razão entre
+    número máximo de pontos possíveis e pontos feitos.
+
+    Exemplo:
+    >>> times = [
+    ... Time(nome='Palmeiras', vitorias=3, pontuacao=6, saldo_gols=4, gols_sofridos=1,
+    ... jogos_anfitriao=1, pontos_anfitriao=3),
+    ... Time(nome='Bota-Fogo', vitorias=0, pontuacao=1, saldo_gols=-1, gols_sofridos=2,
+    ... jogos_anfitriao=1, pontos_anfitriao=1),
+    ... Time(nome='Santos', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=3,
+    ... jogos_anfitriao=1, pontos_anfitriao=0),
+    ... Time(nome='Vasco', vitorias=1, pontuacao=4, saldo_gols=1, gols_sofridos=2,
+    ... jogos_anfitriao=2, pontos_anfitriao=3),
+    ... Time(nome='Flamengo', vitorias=2, pontuacao=4, saldo_gols=0, gols_sofridos=3,
+    ... jogos_anfitriao=1, pontos_anfitriao=3),
+    ... Time(nome='Atletico-Madrid', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=4,
+    ... jogos_anfitriao=0, pontos_anfitriao=0)]
+    >>> melhor_aproveitamento(times) # doctest: +NORMALIZE_WHITESPACE
+    [Time(nome='Palmeiras', vitorias=3, pontuacao=6, saldo_gols=4, gols_sofridos=1,
+    jogos_anfitriao=1, pontos_anfitriao=3),
+    Time(nome='Flamengo', vitorias=2, pontuacao=4, saldo_gols=0, gols_sofridos=3,
+    jogos_anfitriao=1, pontos_anfitriao=3)]
+    '''
+    if len(times) == 0 or len(times) == 1:
+        melhores = times
+    elif len(times) == 2:
+        desempenho0 = desempenho1 = 0
+        if times[0].jogos_anfitriao != 0:
+            desempenho0 = times[0].pontos_anfitriao/(times[0].jogos_anfitriao*3)
+        if times[1].jogos_anfitriao != 0:
+            desempenho1 = times[1].pontos_anfitriao/(times[1].jogos_anfitriao*3)
+
+        if desempenho0 > desempenho1:
+            melhores = [times[0]]
+        elif desempenho1 > desempenho0:
+            melhores = [times[1]]
+        else:
+            melhores = times
+    else:
+        i_metade = len(times) // 2
+        # compara o resultado da comparação da primeira metade com o da segunda metade
+        melhores = melhor_aproveitamento(
+            melhor_aproveitamento(times[:i_metade]) + \
+            melhor_aproveitamento(times[i_metade:]))
+        
+    return melhores
+
 
 if __name__ == '__main__':
     main()

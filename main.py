@@ -304,11 +304,13 @@ def ordem_classificacao(times: list[Time]):
                 times[i] = times[j]
                 times[j] = aux
 
-def melhor_aproveitamento(times: list[Time]) -> list[Time]:
+def melhor_aproveitamento(times: list[Time], i: int) -> list[Time]:
     '''
     Retorna o(s) time(s) com melhor aproveitamento jogando como 
-    anfitrião dentro de *times*. O aproveitamento é a razão entre
-    número máximo de pontos possíveis e pontos feitos.
+    anfitrião dentro de *times* a partir do indice *i*. O aproveitamento
+    é a razão entre número máximo de pontos possíveis e pontos feitos. Se
+    *i >= len(times)*, será considerado apenas o último elemento da lista,
+    da mesma forma que em *i == len(times) - 1*
 
     Exemplo:
     >>> times = [
@@ -317,36 +319,33 @@ def melhor_aproveitamento(times: list[Time]) -> list[Time]:
     ... Time(nome='Bota-Fogo', vitorias=0, pontuacao=1, saldo_gols=-1, gols_sofridos=2,
     ... jogos_anfitriao=1, pontos_anfitriao=1),
     ... Time(nome='Santos', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=3,
-    ... jogos_anfitriao=1, pontos_anfitriao=0),
+    ... jogos_anfitriao=1, pontos_anfitriao=3),
     ... Time(nome='Vasco', vitorias=1, pontuacao=4, saldo_gols=1, gols_sofridos=2,
     ... jogos_anfitriao=2, pontos_anfitriao=3),
     ... Time(nome='Flamengo', vitorias=2, pontuacao=4, saldo_gols=0, gols_sofridos=3,
     ... jogos_anfitriao=1, pontos_anfitriao=3),
     ... Time(nome='Atletico-Madrid', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=4,
     ... jogos_anfitriao=0, pontos_anfitriao=0)]
-    >>> melhor_aproveitamento(times) # doctest: +NORMALIZE_WHITESPACE
+    >>> melhor_aproveitamento(times, 0) # doctest: +NORMALIZE_WHITESPACE
     [Time(nome='Palmeiras', vitorias=3, pontuacao=6, saldo_gols=4, gols_sofridos=1,
+    jogos_anfitriao=1, pontos_anfitriao=3),
+    Time(nome='Santos', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=3,
     jogos_anfitriao=1, pontos_anfitriao=3),
     Time(nome='Flamengo', vitorias=2, pontuacao=4, saldo_gols=0, gols_sofridos=3,
     jogos_anfitriao=1, pontos_anfitriao=3)]
     '''
-    if len(times) == 0 or len(times) == 1:
-        melhores = times
-    elif len(times) == 2:
-        if calc_aproveitamento(times[0]) > calc_aproveitamento(times[1]):
-            melhores = [times[0]]
-        elif calc_aproveitamento(times[0]) < calc_aproveitamento(times[1]):
-            melhores = [times[1]]
-        else:
-            melhores = times
+    if  i >= len(times) - 1:
+        melhores = [times[len(times) - 1]]
     else:
-        i_metade = len(times) // 2
-        # compara o resultado da comparação da primeira metade com o da segunda metade
-        melhores = melhor_aproveitamento(
-            melhor_aproveitamento(times[:i_metade]) + \
-            melhor_aproveitamento(times[i_metade:]))
+        melhores_frente = melhor_aproveitamento(times, i+1)
+        if calc_aproveitamento(times[i]) > calc_aproveitamento(melhores_frente[0]):
+            melhores = [times[i]]
+        elif calc_aproveitamento(times[i]) < calc_aproveitamento(melhores_frente[0]):
+            melhores = melhores_frente
+        else:
+            melhores = [times[i]] + melhores_frente
     return melhores
-
+   
 def calc_aproveitamento(time: Time) -> float:
     '''
     Calcula o aproveitamento do *time* nos jogos em que ele jogou como anfitrião

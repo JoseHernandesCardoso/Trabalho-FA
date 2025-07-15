@@ -81,16 +81,22 @@ def main():
         print('Muitos parâmetro. Informe apenas um nome de arquivo.')
         sys.exit(1)
     jogos = le_arquivo(sys.argv[1])
+    linha('-=', 40)
+    print(' '*10 + 'TABELA DO BRASILEIRÃO' + ' '*10)
+    linha('-=', 40)
+    # 1 - Tabela
     times = define_times(jogos)
     exibe_tabela(times)
-
+    linha('-', 40)
+    # 2 - Melhor aproveitamento como anfitrião
     times_melhor_aprv = melhor_aproveitamento(times, 0)
     aprv = calc_aproveitamento(times_melhor_aprv[0])
     print('O(s) time(s) com o melhor aproveitamento jogando como anfitrião foi(ram):')
     for time in times_melhor_aprv:
         print('   - ' + time.nome)
     print('Com ' + porcento(aprv) + ' de aproveitamento.')
-
+    # 3 - Defesa menos vazada
+    linha('-', 40)
     times_menos_vazada = menos_vazada(times, 0)
     print('O(s) time(s) com a(s) defesa(s) menos vazada(s) foi(ram):')
     for time in times_menos_vazada:
@@ -251,16 +257,23 @@ def exibe_tabela(times: list[Time]):
     ... Time(nome='Atletico-Madrid', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=4,
     ... jogos_anfitriao=0, pontos_anfitriao=0)]
     >>> exibe_tabela(times)
-    Palmeiras       6 3  4
-    Flamengo        4 2  0
-    Vasco           4 1  1
-    Bota-Fogo       1 0 -1
-    Atletico-Madrid 1 0 -3
-    Santos          1 0 -3
+    ___________________________________
+    TIME            | PTS | VIT | SGOLS
+    ===================================
+    Palmeiras       |   6 |   3 |     4
+    Flamengo        |   4 |   2 |     0
+    Vasco           |   4 |   1 |     1
+    Bota-Fogo       |   1 |   0 |    -1
+    Atletico-Madrid |   1 |   0 |    -3
+    Santos          |   1 |   0 |    -3
+    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
     '''
     ordem_classificacao(times)
-    # encontra o tamanho ideal para cada coluna
-    maior_nome = maior_ponto = maior_vitoria = maior_saldo = 0
+    # Encontra o tamanho ideal para cada coluna
+    # Os tamanhos mínimos servem para comportar o nome da coluna
+    maior_nome = 4
+    maior_ponto = maior_vitoria = 3
+    maior_saldo = 5
     for time in times:
         if maior_nome < len(time.nome):
             maior_nome = len(time.nome)
@@ -273,16 +286,24 @@ def exibe_tabela(times: list[Time]):
 
         if maior_saldo < len(str(time.saldo_gols)):
             maior_saldo = len(str(time.saldo_gols))
-    # exibe tabela
+    tam_total = maior_nome + maior_ponto + maior_vitoria + maior_saldo + 9
+    # Exibe tabela
+    linha('_', tam_total)
+    print('TIME' + ' '*(maior_nome - 4) + ' |',
+          'PTS' + ' '*(maior_ponto - 3) + ' |',
+          'VIT' + ' '*(maior_vitoria - 3) + ' |',
+          'SGOLS')
+    linha('=', tam_total)
     for time in times:
         tam_nome = maior_nome - len(time.nome)
         tam_ponto = maior_ponto - len(str(time.pontuacao))
         tam_vitoria = maior_vitoria - len(str(time.vitorias))
         tam_saldo = maior_saldo - len(str(time.saldo_gols))
-        print(time.nome + ' '*tam_nome,
-              ' '*tam_ponto + str(time.pontuacao),
-              ' '*tam_vitoria + str(time.vitorias),
+        print(time.nome + ' '*tam_nome + ' |',
+              ' '*tam_ponto + str(time.pontuacao) + ' |',
+              ' '*tam_vitoria + str(time.vitorias)+ ' |',
               ' '*tam_saldo + str(time.saldo_gols))
+    linha('‾', tam_total)
 
 def ordem_classificacao(times: list[Time]):
     '''
@@ -412,6 +433,21 @@ def menos_vazada(times: list[Time], i: int) -> list[Time]:
         else:
             menos = [times[i]] + menos_frente
     return menos
+
+def linha(estilo: str, tamanho: int):
+    '''
+    Exibe uma linha do tipo *estilo* com o dado *tamanho* de caracteres.
+
+    Exemplos:
+    >>> linha('*', 10)
+    **********
+    >>> linha('-=', 5)
+    -=-=-
+    '''
+    linha = ''
+    while len(linha) != tamanho:
+        linha = linha + estilo[len(linha)%len(estilo)]
+    print(linha)
 
 if __name__ == '__main__':
     main()

@@ -84,14 +84,20 @@ def main():
     times = define_times(jogos)
     exibe_tabela(times)
 
-    melhores_aprv = melhor_aproveitamento(times)
+    melhores_aprv = melhor_aproveitamento(times, 0)
     aprv = calc_aproveitamento(melhores_aprv[0])
     aprv = round(aprv*100, 2)
     print('O(s) time(s) com o melhor aproveitamento jogando como anfitrião foi(ram):')
     for time in melhores_aprv:
         print('   - ' + time.nome)
     print('Com ' + str(aprv) + '% de aproveitamento.')
-    # TODO: solução da pergunta 3
+
+    menos_vazadas = menos_vazada(times, 0)
+    print('O(s) time(s) com a(s) defesa(s) menos vazada(s) foi(ram):')
+    for time in menos_vazadas:
+        print('   - ' + time.nome)
+    print('Recebendo apenas ' + str(menos_vazadas[0].gols_sofridos) + \
+          ' gols ao longo do campeonato')
 
 
 def le_arquivo(nome: str) -> list[str]:
@@ -306,11 +312,10 @@ def ordem_classificacao(times: list[Time]):
 
 def melhor_aproveitamento(times: list[Time], i: int) -> list[Time]:
     '''
-    Retorna o(s) time(s) com melhor aproveitamento jogando como 
-    anfitrião dentro de *times* a partir do indice *i*. O aproveitamento
-    é a razão entre número máximo de pontos possíveis e pontos feitos. Se
-    *i >= len(times)*, será considerado apenas o último elemento da lista,
-    da mesma forma que em *i == len(times) - 1*
+    Retorna os times com melhor aproveitamento jogando como anfitrião dentro 
+    de *times* a partir do indice *i*. O aproveitamento é a razão entre número
+    máximo de pontos possíveis e pontos feitos. Se *i > len(times)-1*, será considerado
+    apenas o último elemento da lista, da mesma forma que em *i == len(times) - 1*
 
     Exemplo:
     >>> times = [
@@ -354,6 +359,45 @@ def calc_aproveitamento(time: Time) -> float:
     if time.jogos_anfitriao != 0:
         aproveitamento = time.pontos_anfitriao/(time.jogos_anfitriao*3)
     return aproveitamento
+
+def menos_vazada(times: list[Time], i: int) -> list[Time]:
+    '''
+    Retorna os times com as defesas menos vazadas em *times* a partir
+    do indice *i*. Um time tem sua defesa considerada como a menos vazada
+    se tiver a menor quantidade de gols sofridos ao longo do campeonato.
+    Se *i > len(times)-1* será considerada apens o último elemento da lista,
+    assim como em *i == len(times)-1*.
+    Exemplo:
+    >>> times = [
+    ... Time(nome='Palmeiras', vitorias=3, pontuacao=6, saldo_gols=4, gols_sofridos=1,
+    ... jogos_anfitriao=1, pontos_anfitriao=3),
+    ... Time(nome='Bota-Fogo', vitorias=0, pontuacao=1, saldo_gols=-1, gols_sofridos=2,
+    ... jogos_anfitriao=1, pontos_anfitriao=1),
+    ... Time(nome='Santos', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=3,
+    ... jogos_anfitriao=1, pontos_anfitriao=3),
+    ... Time(nome='Vasco', vitorias=1, pontuacao=4, saldo_gols=1, gols_sofridos=1,
+    ... jogos_anfitriao=2, pontos_anfitriao=3),
+    ... Time(nome='Flamengo', vitorias=2, pontuacao=4, saldo_gols=0, gols_sofridos=3,
+    ... jogos_anfitriao=1, pontos_anfitriao=3),
+    ... Time(nome='Atletico-Madrid', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=4,
+    ... jogos_anfitriao=0, pontos_anfitriao=0)]
+    >>> menos_vazada(times, 0) # doctest: +NORMALIZE_WHITESPACE
+    [Time(nome='Palmeiras', vitorias=3, pontuacao=6, saldo_gols=4, gols_sofridos=1,
+    jogos_anfitriao=1, pontos_anfitriao=3),
+    Time(nome='Vasco', vitorias=1, pontuacao=4, saldo_gols=1, gols_sofridos=1,
+    jogos_anfitriao=2, pontos_anfitriao=3)]
+    '''
+    if i >= len(times) - 1:
+        menos = [times[len(times) - 1]]
+    else:
+        menos_frente = menos_vazada(times, i+1)
+        if times[i].gols_sofridos < menos_frente[0].gols_sofridos:
+            menos = [times[i]]
+        elif times[i].gols_sofridos > menos_frente[0].gols_sofridos:
+            menos = menos_frente
+        else:
+            menos = [times[i]] + menos_frente
+    return menos
 
 if __name__ == '__main__':
     main()

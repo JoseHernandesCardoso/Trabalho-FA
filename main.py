@@ -84,19 +84,18 @@ def main():
     times = define_times(jogos)
     exibe_tabela(times)
 
-    melhores_aprv = melhor_aproveitamento(times, 0)
-    aprv = calc_aproveitamento(melhores_aprv[0])
-    aprv = round(aprv*100, 2)
+    times_melhor_aprv = melhor_aproveitamento(times, 0)
+    aprv = calc_aproveitamento(times_melhor_aprv[0])
     print('O(s) time(s) com o melhor aproveitamento jogando como anfitrião foi(ram):')
-    for time in melhores_aprv:
+    for time in times_melhor_aprv:
         print('   - ' + time.nome)
-    print('Com ' + str(aprv) + '% de aproveitamento.')
+    print('Com ' + porcento(aprv) + ' de aproveitamento.')
 
-    menos_vazadas = menos_vazada(times, 0)
+    times_menos_vazada = menos_vazada(times, 0)
     print('O(s) time(s) com a(s) defesa(s) menos vazada(s) foi(ram):')
-    for time in menos_vazadas:
+    for time in times_menos_vazada:
         print('   - ' + time.nome)
-    print('Recebendo apenas ' + str(menos_vazadas[0].gols_sofridos) + \
+    print('Recebendo apenas ' + str(times_menos_vazada[0].gols_sofridos) + \
           ' gols ao longo do campeonato')
 
 
@@ -355,10 +354,25 @@ def calc_aproveitamento(time: Time) -> float:
     '''
     Calcula o aproveitamento do *time* nos jogos em que ele jogou como anfitrião
     '''
-    aproveitamento = 0
+    aproveitamento = 0.0
     if time.jogos_anfitriao != 0:
         aproveitamento = time.pontos_anfitriao/(time.jogos_anfitriao*3)
     return aproveitamento
+
+def porcento(n: float) -> str:
+    '''
+    Transforma *n* em porcentagem para exibição.
+    A porcentagem tem, no máximo, duas casas decimais.
+
+    Exemplos:
+    >>> porcento(1.0)
+    '100.0%'
+    >>> porcento(0.65)
+    '65.0%'
+    >>> porcento(0.725242)
+    '72.52%'
+    '''
+    return str(round(n*100, 2)) + '%'
 
 def menos_vazada(times: list[Time], i: int) -> list[Time]:
     '''

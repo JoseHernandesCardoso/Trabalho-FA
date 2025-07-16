@@ -92,15 +92,13 @@ def main():
     times_melhor_aprv = melhor_aproveitamento(times, 0)
     aprv = calc_aproveitamento(times_melhor_aprv[0])
     print('O(s) time(s) com o melhor aproveitamento jogando como anfitrião foi(ram):')
-    for time in times_melhor_aprv:
-        print('   - ' + time.nome)
+    lista_nomes(times_melhor_aprv)
     print('Com ' + porcento(aprv) + ' de aproveitamento.')
-    # 3 - Defesa menos vazada
     linha('-', 40)
+    # 3 - Defesa menos vazada
     times_menos_vazada = menos_vazada(times, 0)
     print('O(s) time(s) com a(s) defesa(s) menos vazada(s) foi(ram):')
-    for time in times_menos_vazada:
-        print('   - ' + time.nome)
+    lista_nomes(times_menos_vazada)
     print('Recebendo apenas ' + str(times_menos_vazada[0].gols_sofridos) + \
           ' gols ao longo do campeonato')
 
@@ -448,6 +446,27 @@ def linha(estilo: str, tamanho: int):
     while len(linha) != tamanho:
         linha = linha + estilo[len(linha)%len(estilo)]
     print(linha)
+
+def lista_nomes(times: list[Time]):
+    '''
+    Lista o nome de cada time em *times*
+
+    Exemplos
+    >>> times = [
+    ... Time(nome='Palmeiras', vitorias=3, pontuacao=6, saldo_gols=4, gols_sofridos=1,
+    ... jogos_anfitriao=1, pontos_anfitriao=3),
+    ... Time(nome='Bota-Fogo', vitorias=0, pontuacao=1, saldo_gols=-1, gols_sofridos=2,
+    ... jogos_anfitriao=1, pontos_anfitriao=1),
+    ... Time(nome='Santos', vitorias=0, pontuacao=1, saldo_gols=-3, gols_sofridos=3,
+    ... jogos_anfitriao=1, pontos_anfitriao=3)]
+    >>> lista_nomes(times)
+        - Palmeiras
+        - Bota-Fogo
+        - Santos
+    '''
+    for t in times:
+        print('    - ' + t.nome)
+
 
 if __name__ == '__main__':
     main()

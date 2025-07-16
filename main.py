@@ -59,7 +59,7 @@ import sys
 from dataclasses import dataclass
 
 @dataclass
-class Time():
+class Time:
     '''
     Representação das estatísticas de um time de futebol em um campeonato
     Todos os valores int são maiores ou iguais a zero
@@ -138,59 +138,22 @@ def define_times(jogos: list[str]) -> list[Time]:
     jogos_anfitriao=1, pontos_anfitriao=0)]
     ''' 
     times: list[Time] = []
-    for i in range(len(jogos)):
-        # Coletando estatisticas do jogo
-        dados = separa_no_espaco(jogos[i])
-        anfitriao = dados[0]
-        gols_anf = int(dados[1])
-        visitante = dados[2]
-        gols_vis = int(dados[3]) # converter para int já resolve o problema do '/n'
-        vitorias_anf = vitorias_vis = 0
-        pontuacao_anf = pontuacao_vis = 0
-        if gols_anf > gols_vis:
-            vitorias_anf = 1
-            pontuacao_anf = 3
-        elif gols_anf == gols_vis:
-            pontuacao_anf = pontuacao_vis = 1
-        else:
-            vitorias_vis = 1
-            pontuacao_vis = 3
-        # Atualizando ou criando (caso não exista) time anfitrião
-        i = procura_indice_time(anfitriao, times)
-        if i != -1:
-            times[i].vitorias = times[i].vitorias + vitorias_anf
-            times[i].pontuacao = times[i].pontuacao + pontuacao_anf
-            times[i].saldo_gols = times[i].saldo_gols + gols_anf - gols_vis
-            times[i].gols_sofridos = times[i].gols_sofridos + gols_vis
-            times[i].jogos_anfitriao = times[i].jogos_anfitriao + 1
-            times[i].pontos_anfitriao = times[i].pontos_anfitriao + pontuacao_anf
-        else:
-            times.append(Time(
-                nome= anfitriao,
-                vitorias= vitorias_anf,
-                pontuacao= pontuacao_anf,
-                saldo_gols= gols_anf - gols_vis,
-                gols_sofridos= gols_vis,
-                jogos_anfitriao= 1,
-                pontos_anfitriao= pontuacao_anf))
-        # Atualizando ou criando (caso não exista) time visitante
-        i = procura_indice_time(visitante, times)
-        if i != -1:
-            times[i].vitorias = times[i].vitorias + vitorias_vis
-            times[i].pontuacao = times[i].pontuacao + pontuacao_vis
-            times[i].saldo_gols = times[i].saldo_gols + gols_vis - gols_anf
-            times[i].gols_sofridos = times[i].gols_sofridos + gols_anf
-        else:
-            times.append(Time(
-                nome= visitante,
-                vitorias= vitorias_vis,
-                pontuacao= pontuacao_vis,
-                saldo_gols= gols_vis - gols_anf,
-                gols_sofridos= gols_anf,
-                jogos_anfitriao= 0,
-                pontos_anfitriao= 0))    
+    for jogo in jogos:
+        dados = separa_no_espaco(jogo)
+        # dados = [nome_anf, gols_anf, nome_vis, gols_vis]
+        # Cria ou atualiza time anfitrião
+        atualiza_time(times=times,
+                      nome=dados[0],
+                      marcados=int(dados[1]),
+                      sofridos=int(dados[3]),
+                      anfitriao=True)
+        # Cria ou atualiza time vizitante
+        atualiza_time(times=times,
+                      nome=dados[2],
+                      marcados=int(dados[3]),
+                      sofridos=int(dados[1]),
+                      anfitriao=False)
     return times
-
 
 def separa_no_espaco(string: str) -> list[str]:
     '''
@@ -218,6 +181,45 @@ def separa_no_espaco(string: str) -> list[str]:
             separado.append(palavra)
             palavra = ''
     return separado
+
+def atualiza_time(times: list[Time], nome: str, marcados: int, \
+                  sofridos: int, anfitriao: bool):
+    '''
+    Atualiza o desempenho de um time dentro de *times*, dado seu *nome*,
+    gols *marcados*, gols *sofridos*, se teve a *vitoria* e se foi o
+    *anfitriao* da partida.
+
+    Se o time não for encontrado em *times*, ele será criado e adicionado
+    ao final da lista.
+    '''
+    saldo = marcados - sofridos
+    vitoria = False
+    pontos = 0
+    if saldo > 0:
+        pontos = 3
+        vitoria = True
+    elif saldo == 0:
+        pontos = 1
+    
+    i = procura_indice_time(nome, times)
+    if i == -1:
+        times.append(Time(
+            nome= nome,
+            vitorias= int(vitoria),
+            pontuacao= pontos,
+            saldo_gols= saldo,
+            gols_sofridos= sofridos,
+            jogos_anfitriao= int(anfitriao),
+            pontos_anfitriao= pontos*int(anfitriao),
+        ))
+    else:
+        times[i].vitorias = times[i].vitorias + int(vitoria)
+        times[i].pontuacao = times[i].pontuacao + pontos
+        times[i].saldo_gols = times[i].saldo_gols + saldo
+        times[i].gols_sofridos = times[i].gols_sofridos + sofridos
+        times[i].jogos_anfitriao = times[i].jogos_anfitriao + int(anfitriao)
+        times[i].pontos_anfitriao = times[i].pontos_anfitriao + pontos*int(anfitriao)
+    
 
 def procura_indice_time(nome: str, times: list[Time]) -> int:
     '''
@@ -293,14 +295,14 @@ def exibe_tabela(times: list[Time]):
           'SGOLS')
     linha('=', tam_total)
     for time in times:
-        tam_nome = maior_nome - len(time.nome)
-        tam_ponto = maior_ponto - len(str(time.pontuacao))
-        tam_vitoria = maior_vitoria - len(str(time.vitorias))
-        tam_saldo = maior_saldo - len(str(time.saldo_gols))
-        print(time.nome + ' '*tam_nome + ' |',
-              ' '*tam_ponto + str(time.pontuacao) + ' |',
-              ' '*tam_vitoria + str(time.vitorias)+ ' |',
-              ' '*tam_saldo + str(time.saldo_gols))
+        espaco_nome = ' '*(maior_nome - len(time.nome))
+        espaco_ponto = ' '*(maior_ponto - len(str(time.pontuacao)))
+        espaco_vitoria = ' '*(maior_vitoria - len(str(time.vitorias)))
+        espaco_saldo = ' '*(maior_saldo - len(str(time.saldo_gols)))
+        print(time.nome + espaco_nome + ' |',
+              espaco_ponto + str(time.pontuacao) + ' |',
+              espaco_vitoria + str(time.vitorias)+ ' |',
+              espaco_saldo + str(time.saldo_gols))
     linha('‾', tam_total)
 
 def ordem_classificacao(times: list[Time]):

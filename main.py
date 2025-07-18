@@ -202,37 +202,31 @@ def atualiza_time(times: list[Time], nome: str, marcados: int, \
         pontos = 1
     
     i = procura_indice_time(nome, times)
-    if i == -1:
-        times.append(Time(
-            nome= nome,
-            vitorias= int(vitoria),
-            pontuacao= pontos,
-            saldo_gols= saldo,
-            gols_sofridos= sofridos,
-            jogos_anfitriao= int(anfitriao),
-            pontos_anfitriao= pontos*int(anfitriao),
-        ))
-    else:
-        times[i].vitorias = times[i].vitorias + int(vitoria)
-        times[i].pontuacao = times[i].pontuacao + pontos
-        times[i].saldo_gols = times[i].saldo_gols + saldo
-        times[i].gols_sofridos = times[i].gols_sofridos + sofridos
-        times[i].jogos_anfitriao = times[i].jogos_anfitriao + int(anfitriao)
-        times[i].pontos_anfitriao = times[i].pontos_anfitriao + pontos*int(anfitriao)
+    times[i].vitorias = times[i].vitorias + int(vitoria)
+    times[i].pontuacao = times[i].pontuacao + pontos
+    times[i].saldo_gols = times[i].saldo_gols + saldo
+    times[i].gols_sofridos = times[i].gols_sofridos + sofridos
+    times[i].jogos_anfitriao = times[i].jogos_anfitriao + int(anfitriao)
+    times[i].pontos_anfitriao = times[i].pontos_anfitriao + pontos*int(anfitriao)
     
 
 def procura_indice_time(nome: str, times: list[Time]) -> int:
     '''
-    Retorna o indice de um time dentro de *times* dado o seu *nome*
-
-    Retorna -1 se o time não estiver em *times*
+    Retorna o indice de um time dentro de *times* dado o seu *nome*.
+    Se o time não etiver em *times*, ele é automaticamente criado no final
+    e retorna o último indice.
     '''
-    indice_time = -1
+    encontrou = False
     i = 0
-    while i < len(times) and indice_time == -1:
+    while i < len(times) and not encontrou:
         if times[i].nome == nome:
             indice_time = i
+            encontrou = True
         i = i + 1
+
+    if not encontrou:
+        times.append(Time(nome, 0, 0, 0, 0, 0, 0))
+        indice_time = len(times) - 1
     return indice_time
 
 def exibe_tabela(times: list[Time]):

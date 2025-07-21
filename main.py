@@ -93,14 +93,13 @@ def main() -> None:
     aprv = calc_aproveitamento(times_melhor_aprv[0])
     print('O(s) time(s) com o melhor aproveitamento jogando como anfitrião foi(ram):')
     lista_nomes(times_melhor_aprv)
-    print('Com ' + porcento(aprv) + ' de aproveitamento.')
+    print(f'Com {porcento(aprv)} de aproveitamento.')
     linha('-', 40)
     # 3 - Defesa menos vazada
     times_menos_vazada = menos_vazada(times, 0)
     print('O(s) time(s) com a(s) defesa(s) menos vazada(s) foi(ram):')
     lista_nomes(times_menos_vazada)
-    print('Recebendo apenas ' + str(times_menos_vazada[0].gols_sofridos) + \
-          ' gols ao longo do campeonato')
+    print(f'Recebendo apenas {times_menos_vazada[0].gols_sofridos} gols ao longo do campeonato')
 
 
 def le_arquivo(nome: str) -> list[str]:
@@ -117,7 +116,7 @@ def le_arquivo(nome: str) -> list[str]:
         with open(nome) as f:
             return f.readlines()
     except IOError as e:
-        print(f'Erro na leitura do arquivo "{nome}": {e.errno} - {e.strerror}.');
+        print(f'Erro na leitura do arquivo "{nome}": {e.errno} - {e.strerror}.')
         sys.exit(1)
 
 def define_times(jogos: list[str]) -> list[Time]:
@@ -201,33 +200,33 @@ def atualiza_time(times: list[Time], nome: str, marcados: int, \
     elif saldo == 0:
         pontos = 1
     
-    i = procura_indice_time(nome, times)
-    times[i].vitorias = times[i].vitorias + int(vitoria)
-    times[i].pontuacao = times[i].pontuacao + pontos
-    times[i].saldo_gols = times[i].saldo_gols + saldo
-    times[i].gols_sofridos = times[i].gols_sofridos + sofridos
-    times[i].jogos_anfitriao = times[i].jogos_anfitriao + int(anfitriao)
-    times[i].pontos_anfitriao = times[i].pontos_anfitriao + pontos*int(anfitriao)
+    time = procura_time(nome, times)
+    time.vitorias = time.vitorias + int(vitoria)
+    time.pontuacao = time.pontuacao + pontos
+    time.saldo_gols = time.saldo_gols + saldo
+    time.gols_sofridos = time.gols_sofridos + sofridos
+    time.jogos_anfitriao = time.jogos_anfitriao + int(anfitriao)
+    time.pontos_anfitriao = time.pontos_anfitriao + pontos*int(anfitriao)
     
 
-def procura_indice_time(nome: str, times: list[Time]) -> int:
+def procura_time(nome: str, times: list[Time]) -> Time:
     '''
-    Retorna o indice de um time dentro de *times* dado o seu *nome*.
+    Procura e retorna um time dentro de *times* dado o seu *nome*.
     Se o time não etiver em *times*, ele é automaticamente criado no final
-    e retorna o último indice.
+    e retornado com os demais valores z.
     '''
     encontrou = False
     i = 0
     while i < len(times) and not encontrou:
         if times[i].nome == nome:
-            indice_time = i
+            time = times[i]
             encontrou = True
         i = i + 1
 
     if not encontrou:
         times.append(Time(nome, 0, 0, 0, 0, 0, 0))
-        indice_time = len(times) - 1
-    return indice_time
+        time = times[i]
+    return time
 
 def exibe_tabela(times: list[Time]) -> None:
     '''
@@ -283,9 +282,9 @@ def exibe_tabela(times: list[Time]) -> None:
     tam_total = maior_nome + maior_ponto + maior_vitoria + maior_saldo + 9
     # Exibe tabela
     linha('_', tam_total)
-    print('TIME' + ' '*(maior_nome - 4) + ' |',
-          'PTS' + ' '*(maior_ponto - 3) + ' |',
-          'VIT' + ' '*(maior_vitoria - 3) + ' |',
+    print(f'TIME{' '*(maior_nome - 4)} |',
+          f'PTS{' '*(maior_ponto - 3)} |',
+          f'VIT{' '*(maior_vitoria - 3)} |',
           'SGOLS')
     linha('=', tam_total)
     for time in times:
@@ -461,7 +460,7 @@ def lista_nomes(times: list[Time]):
         - Santos
     '''
     for t in times:
-        print('    - ' + t.nome)
+        print(f'    - {t.nome}')
 
 
 if __name__ == '__main__':

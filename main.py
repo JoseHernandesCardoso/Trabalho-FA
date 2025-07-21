@@ -301,27 +301,36 @@ def exibe_tabela(times: list[Time]) -> None:
 def ordem_classificacao(times: list[Time]) -> None:
     '''
     Modifica *times* ordenando eles de acordo com suas classificações.
-    A ordem de classificação é feita de acordo com a pontuação de cada time.
-    Em caso de empate, ganha o time com mais vitórias. Em caso de outro empate,
-    ganha o time com melhor saldo de gols. Em caso de mais um empate, o critério
-    final é a ordem alfabética do nome dos times.
+    A ordem de classificação é feita de acordo com o desempenho individual
+    de cada time, segundo os critérios do campeonato.
     '''
     for i in range(len(times)):
         for j in range(i+1, len(times)):
-            j_mais_pontos = times[j].pontuacao > times[i].pontuacao
-            desempate1 = (times[j].pontuacao == times[i].pontuacao
-                          and times[j].vitorias > times[i].vitorias)
-            desempate2 = (times[j].pontuacao == times[i].pontuacao
-                          and times[j].vitorias == times[i].vitorias
-                          and times[j].saldo_gols > times[i].saldo_gols)
-            desempate3 = (times[j].pontuacao == times[i].pontuacao
-                          and times[j].vitorias == times[i].vitorias
-                          and times[j].saldo_gols == times[i].saldo_gols
-                          and times[j].nome < times[i].nome)
-            if j_mais_pontos or desempate1 or desempate2 or desempate3:
+            if primeiro_melhor_desempenho(times[j], times[i]):
                 aux = times[i]
                 times[i] = times[j]
                 times[j] = aux
+
+def primeiro_melhor_desempenho(time1: Time, time2: Time) -> bool:
+    '''
+    Retorna True se o *time1* teve um melhor desmpenho que o *time2*, segundo
+    as ordens de classifiação do campeonato. Ou seja, se o *time1* tem mais pontos
+    que o *time2*, ele desempenhou melhor. Em caso de empate, desempenhou melhor o
+    time com mais vitórias. Em caso de outro empate, desempenhou melhor o time com
+    maior saldo de gols. Em caso de mais um empate, o critério final é a ordem
+    alfabética do nome dos times.
+    '''
+    mais_pontos = time1.pontuacao > time2.pontuacao
+    desempate1 = (time1.pontuacao == time2.pontuacao
+                    and time1.vitorias > time2.vitorias)
+    desempate2 = (time1.pontuacao == time2.pontuacao
+                    and time1.vitorias == time2.vitorias
+                    and time1.saldo_gols > time2.saldo_gols)
+    desempate3 = (time1.pontuacao == time2.pontuacao
+                    and time1.vitorias == time2.vitorias
+                    and time1.saldo_gols == time2.saldo_gols
+                    and time1.nome < time2.nome)
+    return mais_pontos or desempate1 or desempate2 or desempate3
 
 def melhor_aproveitamento(times: list[Time], i: int) -> list[Time]:
     '''

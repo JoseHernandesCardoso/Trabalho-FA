@@ -73,7 +73,7 @@ class Time:
     pontos_anfitriao: int
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 2:
         print('Nenhum nome de arquivo informado.')
         sys.exit(1)
@@ -183,7 +183,7 @@ def separa_no_espaco(string: str) -> list[str]:
     return separado
 
 def atualiza_time(times: list[Time], nome: str, marcados: int, \
-                  sofridos: int, anfitriao: bool):
+                  sofridos: int, anfitriao: bool) -> None:
     '''
     Atualiza o desempenho de um time dentro de *times*, dado seu *nome*,
     gols *marcados*, gols *sofridos*, se teve a *vitoria* e se foi o
@@ -229,7 +229,7 @@ def procura_indice_time(nome: str, times: list[Time]) -> int:
         indice_time = len(times) - 1
     return indice_time
 
-def exibe_tabela(times: list[Time]):
+def exibe_tabela(times: list[Time]) -> None:
     '''
     Exibe uma tabela com cada time dentro de *times*. A tabela exibe nome,
     pontuação, vitórias e saldo de gols de cada time, nesta ordem. As colunas
@@ -299,7 +299,7 @@ def exibe_tabela(times: list[Time]):
               espaco_saldo + str(time.saldo_gols))
     linha('‾', tam_total)
 
-def ordem_classificacao(times: list[Time]):
+def ordem_classificacao(times: list[Time]) -> None:
     '''
     Modifica *times* ordenando eles de acordo com suas classificações.
     A ordem de classificação é feita de acordo com a pontuação de cada time.
@@ -428,7 +428,7 @@ def menos_vazada(times: list[Time], i: int) -> list[Time]:
             menos = [times[i]] + menos_frente
     return menos
 
-def linha(estilo: str, tamanho: int):
+def linha(estilo: str, tamanho: int) -> None:
     '''
     Exibe uma linha do tipo *estilo* com o dado *tamanho* de caracteres.
 
